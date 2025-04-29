@@ -1,10 +1,14 @@
 import { AuthResponse } from './dto/auth.dto';
-import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { UserProfileResponse } from './dto/responces/profile.dto';
+import { Authorization } from './decorators/authorization.decorator';
 import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterRequest } from './dto/register.dto';
 import { LoginRequest } from './dto/login.dto';
 import type { Response, Request } from 'express'
+import { Authorized } from './decorators/authorized.decorator';
+import { User } from '@prisma/client';
 
 
 @Controller('auth')
@@ -57,5 +61,15 @@ export class AuthController {
   @HttpCode(200)
   async logout(@Res({passthrough: true}) res: Response) {
     return await this.authService.logout(res)
+  }
+
+  @Authorization()
+  @Get('profile')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Get user profile', description: 'Returns current user profile' })
+  @ApiOkResponse({ type: UserProfileResponse })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async profile(@Authorized() user: User): Promise<UserProfileResponse> {
+    return await this.authService.getProfile(user);
   }
 }

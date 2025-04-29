@@ -1,4 +1,6 @@
 import { isDev } from './../utils/is-dev.util';
+import { plainToInstance } from 'class-transformer';
+import { UserProfileResponse } from './dto/responces/profile.dto';
 import type { JwtPayload } from './interfaces/jwt.interface';
 import { ConfigService } from '@nestjs/config';
 import { RegisterRequest } from './dto/register.dto';
@@ -8,6 +10,7 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { hash, verify } from 'argon2'
 import { LoginRequest } from './dto/login.dto';
 import type { Response, Request } from 'express'
+import type { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -102,6 +105,45 @@ export class AuthService {
   async logout(res: Response) {
     this.setCookie(res, 'refreshToken', new Date(0))
     return true
+  }
+
+  async getProfile(user: User): Promise<UserProfileResponse> {
+    const profile = await this.prismaService.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        address: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  
+    if (!profile) {
+      throw new NotFoundException('User not found');
+    }
+  
+    return plainToInstance(UserProfileResponse, profile);
+  }
+
+  async validate(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+      }
+    })
+
+    if(!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    return user
   }
 
   private auth(res: Response, id: string) {
