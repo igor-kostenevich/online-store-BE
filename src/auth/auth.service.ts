@@ -1,6 +1,6 @@
 import { isDev } from './../utils/is-dev.util';
 import { plainToInstance } from 'class-transformer';
-import { UserProfileResponse } from './dto/responces/profile.dto';
+import { UserProfileResponse } from './dto/responses/profile.dto';
 import type { JwtPayload } from './interfaces/jwt.interface';
 import { ConfigService } from '@nestjs/config';
 import { RegisterRequest } from './dto/register.dto';

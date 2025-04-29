@@ -1,7 +1,7 @@
 import { UpdateProfileRequest } from './dto/updateProfile.dto';
 import { AuthResponse } from './dto/auth.dto';
 import { Body, Controller, Get, HttpCode, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { UserProfileResponse } from './dto/responces/profile.dto';
+import { UserProfileResponse } from './dto/responses/profile.dto';
 import { Authorization } from './decorators/authorization.decorator';
 import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
