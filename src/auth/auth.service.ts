@@ -4,13 +4,14 @@ import { UserProfileResponse } from './dto/responces/profile.dto';
 import type { JwtPayload } from './interfaces/jwt.interface';
 import { ConfigService } from '@nestjs/config';
 import { RegisterRequest } from './dto/register.dto';
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { hash, verify } from 'argon2'
 import { LoginRequest } from './dto/login.dto';
 import type { Response, Request } from 'express'
 import type { User } from '@prisma/client';
+import { UpdateProfileRequest } from './dto/updateProfile.dto';
 
 @Injectable()
 export class AuthService {
@@ -127,6 +128,29 @@ export class AuthService {
     }
   
     return plainToInstance(UserProfileResponse, profile);
+  }
+
+  async updateProfile(user: User, dto: UpdateProfileRequest): Promise<UserProfileResponse> {
+    if (!dto.hasAtLeastOneField()) {
+      throw new BadRequestException('At least one field must be provided to update profile');
+    }
+  
+    const updatedUser = await this.prismaService.user.update({
+      where: { id: user.id },
+      data: dto,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        address: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  
+    return plainToInstance(UserProfileResponse, updatedUser);
   }
 
   async validate(id: string) {

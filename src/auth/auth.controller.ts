@@ -1,5 +1,6 @@
+import { UpdateProfileRequest } from './dto/updateProfile.dto';
 import { AuthResponse } from './dto/auth.dto';
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { UserProfileResponse } from './dto/responces/profile.dto';
 import { Authorization } from './decorators/authorization.decorator';
 import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
@@ -71,5 +72,19 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async profile(@Authorized() user: User): Promise<UserProfileResponse> {
     return await this.authService.getProfile(user);
+  }
+
+  @Authorization()
+  @Patch('profile')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Update user profile', description: 'Updates current user profile' })
+  @ApiOkResponse({ type: UserProfileResponse })
+  @ApiBadRequestResponse({ description: 'At least one field must be provided' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async updateProfile(
+    @Authorized() user: User,
+    @Body() dto: UpdateProfileRequest
+  ): Promise<UserProfileResponse> {
+    return await this.authService.updateProfile(user, dto);
   }
 }
