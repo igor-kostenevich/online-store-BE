@@ -1,9 +1,11 @@
+import { AuthResponse } from './dto/auth.dto';
 import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterRequest } from './dto/register.dto';
 import { LoginRequest } from './dto/login.dto';
 import type { Response, Request } from 'express'
+
 
 @Controller('auth')
 export class AuthController {
@@ -13,6 +15,9 @@ export class AuthController {
     summary: 'Register user',
     description: 'Register new user',
   })
+  @ApiOkResponse({ type: AuthResponse})
+  @ApiBadRequestResponse({ description: 'Bad request' })
+  @ApiConflictResponse({ description: 'User already exists' })
   @Post('register')
   @HttpCode(201)
   async register(@Res({passthrough: true}) res: Response, @Body() dto: RegisterRequest) {
@@ -23,6 +28,9 @@ export class AuthController {
     summary: 'Login user',
     description: 'Login user',
   })
+  @ApiOkResponse({ type: AuthResponse})
+  @ApiBadRequestResponse({ description: 'Bad request' })
+  @ApiNotFoundResponse({ description: 'User not found' })
   @Post('login')
   @HttpCode(200)
   async login(@Res({passthrough: true}) res: Response, @Body() dto: LoginRequest) {
@@ -33,6 +41,8 @@ export class AuthController {
     summary: 'Refresh token',
     description: 'Refresh access token',
   })
+  @ApiOkResponse({ type: AuthResponse})
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post('refresh')
   @HttpCode(200)
   async refresh(@Req() req: Request, @Res({passthrough: true}) res: Response) {
