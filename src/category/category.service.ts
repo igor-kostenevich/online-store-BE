@@ -15,8 +15,6 @@ export class CategoryService {
       },
     })
 
-    return plainToInstance(CategoryResponse, categories, {
-      enableImplicitConversion: true,
-    })
+    return plainToInstance(CategoryResponse, categories)
   }
 }
