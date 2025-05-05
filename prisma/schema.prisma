@@ -25,3 +25,13 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Category {
+  id        String     @id @default(uuid())
+  name      String
+  slug      String     @unique
+  parentId  String?
+  parent    Category?  @relation("CategoryToParent", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryToParent")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}

@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   controllers: [AppController],
@@ -13,7 +14,8 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
     }),
     PrismaModule, 
-    AuthModule
+    AuthModule,
+    CategoryModule,
   ],
 })
 export class AppModule {}
