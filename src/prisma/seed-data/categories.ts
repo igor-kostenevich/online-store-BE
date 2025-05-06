@@ -9,10 +9,13 @@ const topCategories = [
   "Electronics",
   "Home & Garden",
   "Sports",
-  "Toys"
+  "Toys",
+  "Medicine",
+  "Groceries & Pets",
+  "Health & Beauty"
 ]
 
-const subcategories = {
+const subcategories: Record<string,string[]> = {
   "Woman’s Fashion": [
     "Dresses", "Shoes", "Bags", "Accessories", "Outerwear", "Lingerie"
   ],
