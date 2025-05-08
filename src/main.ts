@@ -19,8 +19,14 @@ async function bootstrap() {
     transform: true,
   }))
   app.setGlobalPrefix('api')
+
+  const allowedOrigins = config
+    .getOrThrow<string>('ALLOWED_ORIGINS')
+    .split(',')
+    .map(o => o.trim())
+
   app.enableCors({
-    origin: config.getOrThrow<string>('ALLOWED_ORIGINS').split(','),
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     exposedHeaders: ['Set-Cookie', 'Content-Disposition'],
