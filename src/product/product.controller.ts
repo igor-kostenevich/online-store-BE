@@ -1,16 +1,41 @@
-import { Controller, Get, HttpCode, Param } from '@nestjs/common';
+import { PaginationInterceptor } from './../common/interceptors/pagination.interceptor';
+import { ClassSerializerInterceptor, Controller, Get, HttpCode, Param, UseInterceptors } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiExtraModels, ApiQuery, getSchemaPath } from '@nestjs/swagger';
 import { ProductResponse } from './dto/responces/product.dto';
+import { PageDto } from 'src/common/dto/pagination/page.dto';
 
 @Controller('product')
+@ApiExtraModels(PageDto, ProductResponse) 
+@UseInterceptors(ClassSerializerInterceptor)
+@UseInterceptors(PaginationInterceptor)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
   @HttpCode(200)
   @ApiOperation({ summary: 'Get all products', description: 'Retrieve a list of all available products' })
-  @ApiOkResponse({ type: [ProductResponse], description: 'Array of products' })
+  @ApiOkResponse({
+    description: 'Список товаров или пагинированный ответ',
+    schema: {
+      oneOf: [
+        { type: 'array', items: { $ref: getSchemaPath(ProductResponse) } },
+        { $ref: getSchemaPath(PageDto) },
+      ],
+    },
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number (optional, default: 1)',
+    schema: { type: 'integer', default: 1 },
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page (optional, default: 20)',
+    schema: { type: 'integer', default: 20 },
+  })
   getAll() {
     return this.productService.findAll();
   }
