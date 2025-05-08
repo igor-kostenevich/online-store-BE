@@ -203,22 +203,23 @@ export async function seedProducts() {
       }
 
       const stock = faker.number.int({ min: 0, max: 200 })
-      const colors = Array.from(
-        { length: faker.number.int({ min: 1, max: 5 }) },
-        () => faker.color.human()
-      )
-
-      const sizes: Array<'XS'|'S'|'M'|'L'|'XL'> = []
+      let colors: string[] = []
       if (
         category.slug.startsWith('womans-fashion') ||
-        category.slug.startsWith('mens-fashion')
+        category.slug.startsWith('mens-fashion') ||
+        (category.slug.startsWith('electronics') && faker.datatype.boolean(0.6))
       ) {
+        colors = Array.from(
+          { length: faker.number.int({ min: 1, max: 5 }) },
+          () => faker.color.rgb({ format: 'hex' })
+        )
+      }
+
+      let sizes: Array<'XS'|'S'|'M'|'L'|'XL'> = []
+      if (category.slug.includes('fashion')) {
         const allSizes = ['XS','S','M','L','XL'] as const
         const pickCount = faker.number.int({ min: 1, max: allSizes.length })
-        faker.helpers
-          .shuffle(allSizes)
-          .slice(0, pickCount)
-          .forEach(s => sizes.push(s))
+        sizes = faker.helpers.shuffle([...allSizes]).slice(0, pickCount) as Array<'XS'|'S'|'M'|'L'|'XL'>
       }
 
       const isNew = faker.datatype.boolean()
