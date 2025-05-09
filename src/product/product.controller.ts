@@ -16,7 +16,7 @@ export class ProductController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Get all products', description: 'Retrieve a list of all available products' })
   @ApiOkResponse({
-    description: 'Список товаров или пагинированный ответ',
+    description: 'List of products',
     schema: {
       oneOf: [
         { type: 'array', items: { $ref: getSchemaPath(ProductResponse) } },
@@ -38,6 +38,20 @@ export class ProductController {
   })
   getAll() {
     return this.productService.findAll();
+  }
+  
+
+  @Get('discounts')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Get all discounted products (paged)', description: 'Retrieve paginated list of products with discount > 0' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (optional)', schema: { type: 'integer', default: 1 } })
+  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (optional)', schema: { type: 'integer', default: 20 } })
+  @ApiOkResponse({
+    description: 'Paginated list of discounted products',
+    schema: { $ref: getSchemaPath(PageDto) },
+  })
+  getDiscounts() {
+    return this.productService.getFlashSalesProducts();
   }
 
   @Get(':slug')

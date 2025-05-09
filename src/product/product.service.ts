@@ -3,10 +3,14 @@ import { PrismaService } from './../prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { ProductResponse } from './dto/responces/product.dto';
+import { FlashSaleProductResponse } from './dto/responces/flash-sale-product.dto';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  private dealsExpiresAt: Date | null = null
+  private dealsCache: ProductResponse[] = []
 
   private normalize(p: RawProduct) {
     return {
@@ -37,5 +41,30 @@ export class ProductService {
     }
 
     return plainToInstance(ProductResponse, this.normalize(product));
+  }
+
+  async getFlashSalesProducts(): Promise<FlashSaleProductResponse> {
+    const now = new Date()
+
+    if (!this.dealsExpiresAt || now > this.dealsExpiresAt) {
+      const days = Math.floor(Math.random() * 5) + 3;
+      this.dealsExpiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+
+      const raws = await this.prismaService.product.findMany({
+        where: { discount: { gt: 0 } },
+        orderBy: { discount: 'desc' },
+        include: { images: true, category: true },
+      });
+
+      this.dealsCache = plainToInstance(
+        ProductResponse,
+        raws.map(p => this.normalize(p))
+      );
+    }
+
+    return {
+      expiresAt: this.dealsExpiresAt.toISOString(),
+      items: this.dealsCache,
+    };
   }
 }
