@@ -1,5 +1,5 @@
 import { CategoryResponse } from './dto/responces/category.dto';
-import { ClassSerializerInterceptor, Controller, Get, HttpCode, UseInterceptors } from '@nestjs/common';
+import { ClassSerializerInterceptor, Controller, Get, HttpCode, Param, UseInterceptors } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
@@ -14,5 +14,15 @@ export class CategoryController {
   @ApiOkResponse({ type: [CategoryResponse] })
   async getAll(): Promise<CategoryResponse[]> {
     return await this.categoryService.getAllCategories()
+  }
+
+  @Get(':slug/children')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Get subcategories for a given category' })
+  @ApiOkResponse({ type: [CategoryResponse] })
+  getChildren(@Param('slug') slug: string): Promise<CategoryResponse[]> {
+    return this.categoryService
+      .getCategoryWithChildren(slug)
+      .then(cat => cat.children || []);
   }
 }

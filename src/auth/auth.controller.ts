@@ -3,7 +3,7 @@ import { AuthResponse } from './dto/auth.dto';
 import { Body, Controller, Get, HttpCode, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { UserProfileResponse } from './dto/responses/profile.dto';
 import { Authorization } from './decorators/authorization.decorator';
-import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterRequest } from './dto/register.dto';
 import { LoginRequest } from './dto/login.dto';
@@ -67,6 +67,7 @@ export class AuthController {
   @Authorization()
   @Get('profile')
   @HttpCode(200)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user profile', description: 'Returns current user profile' })
   @ApiOkResponse({ type: UserProfileResponse })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -77,6 +78,7 @@ export class AuthController {
   @Authorization()
   @Patch('profile')
   @HttpCode(200)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user profile', description: 'Updates current user profile' })
   @ApiOkResponse({ type: UserProfileResponse })
   @ApiBadRequestResponse({ description: 'At least one field must be provided' })
