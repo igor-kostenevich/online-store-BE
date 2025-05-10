@@ -67,4 +67,16 @@ export class ProductService {
       items: this.dealsCache,
     };
   }
+
+  async getTopNewArrivals(): Promise<ProductResponse[]> {
+    const raws = await this.prismaService.product.findMany({
+      where: { isNew: true },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: { images: true, category: true },
+    });
+
+    const items = raws.map(r => this.normalize(r));
+    return plainToInstance(ProductResponse, items);
+  }
 }

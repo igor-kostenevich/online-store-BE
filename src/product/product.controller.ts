@@ -54,6 +54,20 @@ export class ProductController {
     return this.productService.getFlashSalesProducts();
   }
 
+  @Get('new-arrivals')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Get top 5 new arrival products',
+    description: 'Returns up to 5 most recent products marked as new arrivals',
+  })
+  @ApiOkResponse({
+    description: 'Array of up to 5 newest products',
+    type: [ProductResponse],
+  })
+  getTopNewArrivals(): Promise<ProductResponse[]> {
+    return this.productService.getTopNewArrivals();
+  }
+
   @Get(':slug')
   @HttpCode(200)
   @ApiOperation({ summary: 'Get a product by its slug', description: 'Retrieve a single product using its unique slug' })
