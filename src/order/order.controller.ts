@@ -1,6 +1,6 @@
 
 import { Body, Controller, Get, HttpCode, Param, Post, Headers } from '@nestjs/common';
-import { ApiBearerAuth, ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse, ApiTags, ApiHeader } from '@nestjs/swagger';
 import { Authorization } from 'src/auth/decorators/authorization.decorator';
 import { Authorized } from 'src/auth/decorators/authorized.decorator';
 import { User } from '@prisma/client';
@@ -21,6 +21,11 @@ export class OrderController {
   })
   @ApiCreatedResponse({ type: OrderResponse, description: 'Order created' })
   @ApiBadRequestResponse({ description: 'Invalid order data or insufficient stock' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Bearer token for authenticated user (optional)',
+    required: false,
+  })
   @Post()
   @HttpCode(201)
   async place(@Body() dto: CreateOrderDto, @Headers('authorization') authHeader?: string,): Promise<OrderResponse> {
