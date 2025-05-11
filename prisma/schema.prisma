@@ -29,6 +29,7 @@ model User {
   phone     String?
   address   String?
   role      Role     @default(USER)
+  orders    Order[]  @relation("user_orders")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -60,6 +61,7 @@ model Product {
   colors      String[]       @default([])
   sizes       Size[]         @default([])
   isNew       Boolean        @default(false)
+  orderItems  OrderItem[]    @relation("product_orderItems")
 
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -76,4 +78,28 @@ model ProductImage {
   createdAt  DateTime @default(now())
 
   @@map("product_images")
+}
+
+model Order {
+  id         String        @id @default(uuid())
+  user       User?         @relation("user_orders", fields: [userId], references: [id])
+  userId     String?      
+  customerEmail   String
+  customerName    String?
+  customerPhone   String?
+  total      Decimal
+  status     String        @default("pending")
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation("product_orderItems", fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Decimal
 }
