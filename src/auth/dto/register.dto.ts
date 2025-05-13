@@ -31,5 +31,5 @@ export class RegisterRequest {
   @IsNotEmpty()
   @MaxLength(50)
   @IsString()
-  name: string;
+  firstName: string;
 }

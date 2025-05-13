@@ -1,6 +1,6 @@
 import { UpdateProfileRequest } from './dto/updateProfile.dto';
 import { AuthResponse } from './dto/auth.dto';
-import { Body, Controller, Get, HttpCode, Patch, Post, Req, Res } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, HttpCode, Patch, Post, Req, Res, UseInterceptors } from '@nestjs/common';
 import { UserProfileResponse } from './dto/responses/profile.dto';
 import { Authorization } from './decorators/authorization.decorator';
 import { ApiOperation, ApiOkResponse, ApiConflictResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -11,7 +11,7 @@ import type { Response, Request } from 'express'
 import { Authorized } from './decorators/authorized.decorator';
 import { User } from '@prisma/client';
 
-
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

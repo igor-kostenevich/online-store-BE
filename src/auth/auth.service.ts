@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   async register(res: Response, dto: RegisterRequest) {
-    const { email, password, name } = dto;
+    const { email, password, firstName } = dto;
 
     const existUser = await this.prismaService.user.findUnique({
       where: {
@@ -43,7 +43,7 @@ export class AuthService {
       data: {
         email,
         password: await hash(password),
-        name,
+        firstName,
       },
     })
 
@@ -114,7 +114,8 @@ export class AuthService {
       select: {
         id: true,
         email: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         phone: true,
         address: true,
         role: true,
@@ -135,13 +136,39 @@ export class AuthService {
       throw new BadRequestException('At least one field must be provided to update profile');
     }
   
+    const { oldPassword, newPassword, repeatPassword, ...data }: Partial<UpdateProfileRequest & { password?: string }> = dto;
+  
+    if (oldPassword) {
+      if (newPassword !== repeatPassword) {
+        throw new BadRequestException('New passwords do not match');
+      }
+  
+      const existing = await this.prismaService.user.findUnique({
+        where: { id: user.id },
+        select: { password: true },
+      });
+  
+      if (!existing) {
+        throw new NotFoundException('User not found');
+      }
+
+      const isValid = await verify(existing.password, oldPassword);
+      if (!isValid) throw new BadRequestException('Incorrect current password');
+  
+      if (!newPassword) {
+        throw new BadRequestException('New password must be provided');
+      }
+      data.password = await hash(newPassword);
+    }
+  
     const updatedUser = await this.prismaService.user.update({
       where: { id: user.id },
-      data: dto,
+      data,
       select: {
         id: true,
         email: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         phone: true,
         address: true,
         role: true,

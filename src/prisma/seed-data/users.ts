@@ -5,7 +5,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
   return Promise.all([
     {
       email: 'alice@example.com',
-      name: 'Alice Johnson',
+      firstName: 'Alice',
+      lastName: 'Johnson',
       password: await hash('password123'),
       phone: '+380501111111',
       address: 'Kyiv, Ukraine',
@@ -13,7 +14,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'bob@example.com',
-      name: 'Bob Smith',
+      firstName: 'Bob',
+      lastName: 'Smith',
       password: await hash('password123'),
       phone: '+380502222222',
       address: 'Lviv, Ukraine',
@@ -21,7 +23,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'carol@example.com',
-      name: 'Carol Novak',
+      firstName: 'Carol',
+      lastName: 'Novak',
       password: await hash('password123'),
       phone: '+380503333333',
       address: 'Odesa, Ukraine',
@@ -29,7 +32,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'dave@example.com',
-      name: 'Dave Miller',
+      firstName: 'Dave',
+      lastName: 'Miller',
       password: await hash('password123'),
       phone: '+380504444444',
       address: 'Dnipro, Ukraine',
@@ -37,7 +41,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'eve@example.com',
-      name: 'Eve Watson',
+      firstName: 'Eve',
+      lastName: 'Watson',
       password: await hash('password123'),
       phone: '+380505555555',
       address: 'Kharkiv, Ukraine',
@@ -45,7 +50,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'frank@example.com',
-      name: 'Frank Bauer',
+      firstName: 'Frank',
+      lastName: 'Bauer',
       password: await hash('password123'),
       phone: '+380506666666',
       address: 'Zaporizhzhia, Ukraine',
@@ -53,7 +59,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'grace@example.com',
-      name: 'Grace Adams',
+      firstName: 'Grace',
+      lastName: 'Adams',
       password: await hash('password123'),
       phone: '+380507777777',
       address: 'Vinnytsia, Ukraine',
@@ -61,7 +68,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'hank@example.com',
-      name: 'Hank Green',
+      firstName: 'Hank',
+      lastName: 'Green',
       password: await hash('password123'),
       phone: '+380508888888',
       address: 'Chernihiv, Ukraine',
@@ -69,7 +77,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'irene@example.com',
-      name: 'Irene Kovalenko',
+      firstName: 'Irene',
+      lastName: 'Kovalenko',
       password: await hash('password123'),
       phone: '+380509999999',
       address: 'Poltava, Ukraine',
@@ -77,7 +86,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'jack@example.com',
-      name: 'Jack Black',
+      firstName: 'Jack',
+      lastName: 'Black',
       password: await hash('password123'),
       phone: '+380501234567',
       address: 'Ternopil, Ukraine',
@@ -85,7 +95,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'kate@example.com',
-      name: 'Kate Bush',
+      firstName: 'Kate',
+      lastName: 'Bush',
       password: await hash('password123'),
       phone: '+380502345678',
       address: 'Uzhhorod, Ukraine',
@@ -93,7 +104,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'leo@example.com',
-      name: 'Leo Messi',
+      firstName: 'Leo',
+      lastName: 'Messi',
       password: await hash('password123'),
       phone: '+380503456789',
       address: 'Ivano-Frankivsk, Ukraine',
@@ -101,7 +113,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'maya@example.com',
-      name: 'Maya Danyliuk',
+      firstName: 'Maya',
+      lastName: 'Danyliuk',
       password: await hash('password123'),
       phone: '+380504567890',
       address: 'Kherson, Ukraine',
@@ -109,7 +122,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'nate@example.com',
-      name: 'Nate Diaz',
+      firstName: 'Nate',
+      lastName: 'Diaz',
       password: await hash('password123'),
       phone: '+380505678901',
       address: 'Mykolaiv, Ukraine',
@@ -117,7 +131,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'olga@example.com',
-      name: 'Olga Petrenko',
+      firstName: 'Olga',
+      lastName: 'Petrenko',
       password: await hash('password123'),
       phone: '+380506789012',
       address: 'Cherkasy, Ukraine',
@@ -125,7 +140,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'peter@example.com',
-      name: 'Peter Parker',
+      firstName: 'Peter',
+      lastName: 'Parker',
       password: await hash('password123'),
       phone: '+380507890123',
       address: 'Sumy, Ukraine',
@@ -133,7 +149,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'quinn@example.com',
-      name: 'Quinn Tarasov',
+      firstName: 'Quinn',
+      lastName: 'Tarasov',
       password: await hash('password123'),
       phone: '+380508901234',
       address: 'Rivne, Ukraine',
@@ -141,7 +158,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'rose@example.com',
-      name: 'Rose Tyler',
+      firstName: 'Rose',
+      lastName: 'Tyler',
       password: await hash('password123'),
       phone: '+380509012345',
       address: 'Zhytomyr, Ukraine',
@@ -149,7 +167,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'sam@example.com',
-      name: 'Sam Fisher',
+      firstName: 'Sam',
+      lastName: 'Fisher',
       password: await hash('password123'),
       phone: '+380501112233',
       address: 'Lutsk, Ukraine',
@@ -157,7 +176,8 @@ export async function getUsers(): Promise<Prisma.UserCreateInput[]> {
     },
     {
       email: 'tina@example.com',
-      name: 'Tina Karol',
+      firstName: 'Tina',
+      lastName: 'Karol',
       password: await hash('password123'),
       phone: '+380502223344',
       address: 'Kyiv, Ukraine',
