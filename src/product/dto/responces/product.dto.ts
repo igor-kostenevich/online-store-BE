@@ -1,6 +1,6 @@
 import { CategoryResponse } from './../../../category/dto/responces/category.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { ProductImageResponse } from './product-image.dto';
 
 export class ProductResponse {
@@ -56,6 +56,21 @@ export class ProductResponse {
 
   @ApiProperty({ description: 'Flag indicating if this is a new arrival' })
   isNew: boolean;
+
+  @ApiProperty({
+    description: 'Average rating of the product (1-5)',
+    example: 4.5,
+    nullable: true,
+  })
+  @Expose()
+  averageRating: number | null;
+  
+  @ApiProperty({
+    description: 'Total number of reviews for this product',
+    example: 27,
+  })
+  @Expose()
+  reviewCount: number;
 
   @ApiProperty({ description: 'Record creation timestamp', type: String, format: 'date-time' })
   createdAt: Date;

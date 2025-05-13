@@ -12,17 +12,25 @@ export class ProductService {
   private dealsExpiresAt: Date | null = null
   private dealsCache: ProductResponse[] = []
 
-  private normalize(p: RawProduct) {
+  private normalize(p: RawProduct & { reviews?: { rating: number }[] }) {
+    const ratings = p.reviews?.map(r => r.rating) ?? []
+    const reviewCount = ratings.length
+    const averageRating = reviewCount
+      ? parseFloat((ratings.reduce((a, b) => a + b, 0) / reviewCount).toFixed(1))
+      : null
+  
     return {
       ...p,
       price: p?.price?.toNumber() ?? null,
       oldPrice: p?.oldPrice != null ? p.oldPrice.toNumber() : null,
-    };
-  }
+      averageRating,
+      reviewCount,
+    }
+  }  
 
   async findAll(): Promise<ProductResponse[]> {
     const products = await this.prismaService.product.findMany({
-      include: { images: true, category: true },
+      include: { images: true, category: true, reviews: true, },
     })
 
     const mappedProducts = products.map(p => this.normalize(p))
@@ -33,7 +41,7 @@ export class ProductService {
   async findBySlug(slug: string): Promise<ProductResponse> {
     const product = await this.prismaService.product.findUnique({
       where: { slug },
-      include: { images: true, category: true },
+      include: { images: true, category: true, reviews: true},
     });
 
     if (!product) {
@@ -53,7 +61,7 @@ export class ProductService {
       const raws = await this.prismaService.product.findMany({
         where: { discount: { gt: 0 } },
         orderBy: { discount: 'desc' },
-        include: { images: true, category: true },
+        include: { images: true, category: true, reviews: true },
       });
 
       this.dealsCache = plainToInstance(
@@ -73,7 +81,7 @@ export class ProductService {
       where: { isNew: true },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { images: true, category: true },
+      include: { images: true, category: true, reviews: true },
     });
 
     const items = raws.map(r => this.normalize(r));
