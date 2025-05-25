@@ -87,4 +87,51 @@ export class ProductService {
     const items = raws.map(r => this.normalize(r));
     return plainToInstance(ProductResponse, items);
   }
+
+  async getBestSellingProducts(): Promise<ProductResponse[]> {
+    const MAX_ITEMS = 60;
+  
+    const salesCounts = await this.prismaService.orderItem.findMany({
+      select: { productId: true, quantity: true },
+    });
+  
+    const salesMap = new Map<string, number>();
+    salesCounts.forEach(({ productId, quantity }) => {
+      salesMap.set(productId, (salesMap.get(productId) || 0) + quantity);
+    });
+  
+    const reviews = await this.prismaService.review.findMany({
+      select: { productId: true, rating: true },
+    });
+  
+    const ratingSumMap = new Map<string, { sum: number; count: number }>();
+    reviews.forEach(({ productId, rating }) => {
+      const entry = ratingSumMap.get(productId) || { sum: 0, count: 0 };
+      ratingSumMap.set(productId, { sum: entry.sum + rating, count: entry.count + 1 });
+    });
+  
+    const ratingMap = new Map<string, number>();
+    ratingSumMap.forEach((value, productId) => {
+      ratingMap.set(productId, value.sum / value.count);
+    });
+  
+    const allProducts = await this.prismaService.product.findMany({
+      include: { images: true, category: true, reviews: true },
+    });
+  
+    const productsWithScore = allProducts.map((p) => {
+      const totalSales = salesMap.get(p.id) || 0;
+      const avgRating = ratingMap.get(p.id) || 0;
+  
+      const score = totalSales * 0.7 + avgRating * 10 * 0.3;
+      return { product: p, score };
+    });
+  
+    const topProducts = productsWithScore
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_ITEMS)
+      .map((entry) => this.normalize(entry.product));
+  
+    return plainToInstance(ProductResponse, topProducts);
+  }
 }

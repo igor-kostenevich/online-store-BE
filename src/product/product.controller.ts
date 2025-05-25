@@ -68,6 +68,22 @@ export class ProductController {
     return this.productService.getTopNewArrivals();
   }
 
+  @Get('best-selling')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Get all best selling products',
+    description: 'Retrieve paginated list of products ranked by combined sales and rating score',
+  })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (optional)', schema: { type: 'integer', default: 1 } })
+  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (optional)', schema: { type: 'integer', default: 20 } })
+  @ApiOkResponse({
+    description: 'Paginated list of best-selling products',
+    schema: { $ref: getSchemaPath(PageDto) },
+  })
+  getBestSellingProducts() {
+    return this.productService.getBestSellingProducts();
+  }
+
   @Get(':slug')
   @HttpCode(200)
   @ApiOperation({ summary: 'Get a product by its slug', description: 'Retrieve a single product using its unique slug' })
