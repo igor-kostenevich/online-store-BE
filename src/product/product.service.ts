@@ -10,7 +10,7 @@ import { createCacheWithExpiry } from '../utils/cacheTimer.util';
 export class ProductService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private readonly flashSalesCache = createCacheWithExpiry<ProductResponse[]>(1)
+  private readonly flashSalesCache = createCacheWithExpiry<ProductResponse[]>((Math.floor(Math.random() * 4) + 2) * 24 * 60 * 60 * 1000)
 
   private normalize(p: RawProduct & { reviews?: { rating: number }[] }) {
     const ratings = p.reviews?.map(r => r.rating) ?? []
