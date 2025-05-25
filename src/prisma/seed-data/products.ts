@@ -2,6 +2,10 @@ import { PrismaClient, $Enums } from '@prisma/client'
 import { slugify } from 'transliteration'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as dotenv from 'dotenv'
+dotenv.config()
+
+const APP_DOMAIN = process.env.APP_DOMAIN || 'http://localhost:3001'
 
 const prisma = new PrismaClient()
 const IMAGES_DIR = path.join(process.cwd(), 'public', 'seeds', 'images')
@@ -102,7 +106,7 @@ export async function seedProducts() {
         : undefined
 
       const productImages = imageFiles.map((file, idx) => ({
-        url: `/seeds/images/${fixedSlug}/${file}`,
+        url: `${APP_DOMAIN}/seeds/images/${fixedSlug}/${file}`,
         isMain: idx === 0,
       }))
 
