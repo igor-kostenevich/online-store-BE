@@ -4,13 +4,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { ProductResponse } from './dto/responces/product.dto';
 import { FlashSaleProductResponse } from './dto/responces/flash-sale-product.dto';
+import { createCacheWithExpiry } from '../utils/cacheTimer.util';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private dealsExpiresAt: Date | null = null
-  private dealsCache: ProductResponse[] = []
+  private readonly flashSalesCache = createCacheWithExpiry<ProductResponse[]>(1)
 
   private normalize(p: RawProduct & { reviews?: { rating: number }[] }) {
     const ratings = p.reviews?.map(r => r.rating) ?? []
@@ -52,11 +52,9 @@ export class ProductService {
   }
 
   async getFlashSalesProducts(): Promise<FlashSaleProductResponse> {
-    const now = new Date()
-
-    if (!this.dealsExpiresAt || now > this.dealsExpiresAt) {
+    if (this.flashSalesCache.isExpired()) {
       const days = Math.floor(Math.random() * 5) + 3;
-      this.dealsExpiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+      const durationMs = days * 24 * 60 * 60 * 1000;
 
       const raws = await this.prismaService.product.findMany({
         where: { discount: { gt: 0 } },
@@ -64,15 +62,18 @@ export class ProductService {
         include: { images: true, category: true, reviews: true },
       });
 
-      this.dealsCache = plainToInstance(
+      const normalizedProducts = plainToInstance(
         ProductResponse,
-        raws.map(p => this.normalize(p))
+        raws.map((p) => this.normalize(p))
       );
+
+      this.flashSalesCache.set(normalizedProducts);
+      (this.flashSalesCache as any).expiresAt = new Date(Date.now() + durationMs);
     }
 
     return {
-      expiresAt: this.dealsExpiresAt.toISOString(),
-      items: this.dealsCache,
+      expiresAt: this.flashSalesCache.getExpiry()!,
+      items: this.flashSalesCache.get()!,
     };
   }
 
