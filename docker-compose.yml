@@ -26,6 +26,8 @@ services:
       - online-store
     depends_on:
       - postgres
+    volumes:
+      - ./public/seeds/images:/app/public/seeds/images
 
 volumes:
   postgres_data:
