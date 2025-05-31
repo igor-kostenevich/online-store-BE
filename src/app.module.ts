@@ -8,10 +8,12 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { PromoModule } from './promo/promo.module';
+import { TelegramModule } from './telegram/telegram.module';
+import { TelegramService } from './telegram/telegram.service';
 
 @Module({
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TelegramService],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -22,6 +24,7 @@ import { PromoModule } from './promo/promo.module';
     ProductModule,
     OrderModule,
     PromoModule,
+    TelegramModule,
   ],
 })
 export class AppModule {}

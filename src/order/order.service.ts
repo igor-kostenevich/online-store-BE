@@ -5,10 +5,11 @@ import { Prisma } from '@prisma/client';
 import { OrderItemResponse } from './dto/responses/orderItemResponse.dto';
 import { OrderResponse } from './dto/responses/orderResponse.dto';
 import { CreateOrderDto } from './dto/createOrder.dto';
+import { TelegramService } from 'src/telegram/telegram.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService, private readonly telegramService: TelegramService) {}
 
   /**
    * Create new order.
@@ -70,6 +71,29 @@ export class OrderService {
         include: { items: true },
       });
     });
+
+    const productMap = new Map(products.map(p => [p.id, p]));
+
+    const productLines = dto.items.map(i => {
+      const product = productMap.get(i.productId);
+      const name = product ? product.name : i.productId;
+      const price = product ? product.price.toFixed(2) : '??';
+      return `• *${name}*: ${i.quantity} ${i.quantity === 1 ? 'item' : 'items'} × $${price}`;
+    }).join('\n');
+
+    const message = `🛒 *New order!*
+
+    👤 *Name:* ${dto.customerName}
+    📞 *Phone:* ${dto.customerPhone}
+    📧 *Email:* ${dto.customerEmail}
+
+    🛍️ *Products:*
+    ${productLines}
+
+    💰 *Total:* $${total.toFixed(2)}
+    ⏰ *Date:* ${new Date().toLocaleString('uk-UA')}`;
+
+    await this.telegramService.sendMessage(message);
 
     const response: OrderResponse = {
       id: order.id,
