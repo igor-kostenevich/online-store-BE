@@ -10,6 +10,7 @@ import { OrderModule } from './order/order.module';
 import { PromoModule } from './promo/promo.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { TelegramService } from './telegram/telegram.service';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   controllers: [AppController],
@@ -25,6 +26,7 @@ import { TelegramService } from './telegram/telegram.service';
     OrderModule,
     PromoModule,
     TelegramModule,
+    MailModule,
   ],
 })
 export class AppModule {}
