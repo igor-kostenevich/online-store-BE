@@ -1,10 +1,12 @@
-import { RawProduct } from './Interfaces/product.interface';
+import { RawAutocompleteProduct, RawProduct } from './Interfaces/product.interface';
 import { PrismaService } from './../prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { ProductResponse } from './dto/responces/product.dto';
 import { FlashSaleProductResponse } from './dto/responces/flash-sale-product.dto';
 import { createCacheWithExpiry } from '../utils/cacheTimer.util';
+import { normalizeRawAutocomplete } from 'src/utils/normalizeProduct.util';
+import { ProductAutocompleteDto } from './dto/responces/product-autocomplete.dto';
 
 @Injectable()
 export class ProductService {
@@ -135,4 +137,58 @@ export class ProductService {
   
     return plainToInstance(ProductResponse, topProducts);
   }
+
+  async searchProducts(query: string): Promise<ProductAutocompleteDto[]> {
+    const q = query?.trim();
+    if (!q || q.length < 3) return [];
+  
+    const isShortQuery = q.length <= 8;
+  
+    const sql = isShortQuery
+      ? `
+        SELECT 
+          p.id,
+          p.name,
+          p.price,
+          img.id as "imageId",
+          img.url as "imageUrl"
+        FROM "products" p
+        LEFT JOIN "product_images" img
+          ON img."productId" = p.id AND img."isMain" = true
+        WHERE p.name ILIKE '%' || $1 || '%'
+           OR p.description ILIKE '%' || $1 || '%'
+        ORDER BY p."updatedAt" DESC
+        LIMIT 20
+      `
+      : `
+        SELECT 
+          p.id,
+          p.name,
+          p.price,
+          img.id as "imageId",
+          img.url as "imageUrl"
+        FROM "products" p
+        LEFT JOIN "product_images" img
+          ON img."productId" = p.id AND img."isMain" = true
+        WHERE p.name % $1 OR p.description % $1
+        ORDER BY p."updatedAt" DESC
+        LIMIT 20
+      `;
+  
+    const rawResults = await this.prismaService.$queryRawUnsafe<RawAutocompleteProduct[]>(sql, q);
+  
+    const transformed = rawResults.map(r => {
+      return plainToInstance(ProductAutocompleteDto, {
+        id: r.id,
+        name: r.name,
+        price: parseFloat(r.price.toString()),
+        image: r.imageId && r.imageUrl
+          ? { id: r.imageId, url: r.imageUrl }
+          : undefined
+      });
+    });
+  
+    return transformed;
+  }
+  
 }

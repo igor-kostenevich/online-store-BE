@@ -1,9 +1,10 @@
 import { PaginationInterceptor } from './../common/interceptors/pagination.interceptor';
-import { ClassSerializerInterceptor, Controller, Get, HttpCode, Param, UseInterceptors } from '@nestjs/common';
+import { ClassSerializerInterceptor, Controller, Get, HttpCode, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiExtraModels, ApiQuery, getSchemaPath } from '@nestjs/swagger';
 import { ProductResponse } from './dto/responces/product.dto';
 import { PageDto } from 'src/common/dto/pagination/page.dto';
+import { ProductAutocompleteDto } from './dto/responces/product-autocomplete.dto';
 
 @Controller('product')
 @ApiExtraModels(PageDto, ProductResponse) 
@@ -82,6 +83,24 @@ export class ProductController {
   })
   getBestSellingProducts() {
     return this.productService.getBestSellingProducts();
+  }
+
+  @Get('search')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Search products by name or description',
+    description: 'Performs a fuzzy search using trigram index on name and description. Returns top 20 matches with main image and price only.',
+  })
+  @ApiQuery({ name: 'q', required: true, description: 'Search query string (minimum 3 characters)' })
+  @ApiOkResponse({
+    description: 'List of matching products',
+    schema: {
+      type: 'array',
+      items: { $ref: getSchemaPath(ProductAutocompleteDto) },
+    },
+  })
+  async search(@Query('q') query: string) {
+    return this.productService.searchProducts(query);
   }
 
   @Get(':slug')
