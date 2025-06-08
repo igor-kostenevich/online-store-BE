@@ -1,6 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 
-class ProductImageDto {
+export class ProductImageDto {
   @Expose() id: string;
   @Expose() url: string;
 }

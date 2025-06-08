@@ -13,6 +13,45 @@ import { ProductAutocompleteDto } from './dto/responces/product-autocomplete.dto
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @Get('homepage')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Get all homepage product blocks' })
+  @ApiOkResponse({
+    description: 'All product blocks for homepage',
+    schema: {
+      type: 'object',
+      properties: {
+        newArrivals: {
+          type: 'array',
+          items: { $ref: getSchemaPath(ProductResponse) },
+        },
+        bestSelling: {
+          type: 'array',
+          items: { $ref: getSchemaPath(ProductResponse) },
+        },
+        discounts: {
+          type: 'array',
+          items: { $ref: getSchemaPath(ProductResponse) },
+        },
+        allProducts: {
+          type: 'array',
+          items: { $ref: getSchemaPath(ProductResponse) },
+        },
+        banner: {
+          type: 'object',
+          properties: {
+            expiresAt: { type: 'string', format: 'date-time' },
+            product: { $ref: getSchemaPath(ProductResponse) },
+          },
+        },
+      },
+    },
+  })
+  async getHomepageBlocks() {
+    return this.productService.getHomepageProductBlocks();
+  }
+
+
   @Get()
   @HttpCode(200)
   @ApiOperation({ summary: 'Get all products', description: 'Retrieve a list of all available products' })

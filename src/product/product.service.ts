@@ -5,12 +5,13 @@ import { plainToInstance } from 'class-transformer';
 import { ProductResponse } from './dto/responces/product.dto';
 import { FlashSaleProductResponse } from './dto/responces/flash-sale-product.dto';
 import { createCacheWithExpiry } from '../utils/cacheTimer.util';
-import { normalizeRawAutocomplete } from 'src/utils/normalizeProduct.util';
 import { ProductAutocompleteDto } from './dto/responces/product-autocomplete.dto';
+import { PromoService } from 'src/promo/promo.service';
+import { shuffle } from 'lodash'
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService, private readonly promoService: PromoService) {}
 
   private readonly flashSalesCache = createCacheWithExpiry<ProductResponse[]>((Math.floor(Math.random() * 4) + 2) * 24 * 60 * 60 * 1000)
 
@@ -31,13 +32,63 @@ export class ProductService {
   }  
 
   async findAll(): Promise<ProductResponse[]> {
+    return this.getMixedCategoryProducts();
+  }
+
+  async getHomepageProductBlocks() {
+    const [newArrivals, bestSelling, discounts, banner, allProducts] = await Promise.all([
+      this.getTopNewArrivals(),
+      this.getBestSellingProducts(),
+      this.getFlashSalesProducts().then(r => r.items.slice(0, 12)),
+      this.promoService.getPromoBanner(),
+      this.getMixedCategoryProducts().then(r => r.slice(0, 24)),
+    ]);
+  
+    return {
+      newArrivals,
+      bestSelling: bestSelling.slice(0, 4),
+      discounts,
+      banner,
+      allProducts,
+    };
+  }
+
+  async getMixedCategoryProducts(): Promise<ProductResponse[]> {
     const products = await this.prismaService.product.findMany({
-      include: { images: true, category: true, reviews: true, },
-    })
+      where: {
+        categoryId: { not: undefined },
+      },
+      include: {
+        images: true,
+        category: true,
+        reviews: true,
+      },
+    });
 
-    const mappedProducts = products.map(p => this.normalize(p))
+    const groupedByCategory = new Map<string, RawProduct[]>();
 
-    return plainToInstance(ProductResponse, mappedProducts);
+    for (const product of products) {
+      const categoryId = product.categoryId;
+      if (!groupedByCategory.has(categoryId)) {
+        groupedByCategory.set(categoryId, []);
+      }
+      groupedByCategory.get(categoryId)!.push(product);
+    }
+
+    const representativeProducts: RawProduct[] = [];
+
+    for (const productsInCategory of groupedByCategory.values()) {
+      const randomProduct = productsInCategory[Math.floor(Math.random() * productsInCategory.length)];
+      representativeProducts.push(randomProduct);
+    }
+
+    const finalSelection = shuffle(representativeProducts)
+
+    const normalized = finalSelection
+      .filter((p): p is RawProduct & { reviews?: { rating: number }[] } => p !== null)
+      .map((p) => this.normalize(p));
+
+    return plainToInstance(ProductResponse, normalized);
   }
 
   async findBySlug(slug: string): Promise<ProductResponse> {
@@ -83,7 +134,7 @@ export class ProductService {
     const raws = await this.prismaService.product.findMany({
       where: { isNew: true },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 4,
       include: { images: true, category: true, reviews: true },
     });
 
