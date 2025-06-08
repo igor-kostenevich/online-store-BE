@@ -201,6 +201,7 @@ export class ProductService {
           p.id,
           p.name,
           p.price,
+          p.slug,
           img.id as "imageId",
           img.url as "imageUrl"
         FROM "products" p
@@ -216,6 +217,7 @@ export class ProductService {
           p.id,
           p.name,
           p.price,
+          p.slug,
           img.id as "imageId",
           img.url as "imageUrl"
         FROM "products" p
@@ -232,6 +234,7 @@ export class ProductService {
       return plainToInstance(ProductAutocompleteDto, {
         id: r.id,
         name: r.name,
+        slug: r.slug,
         price: parseFloat(r.price.toString()),
         image: r.imageId && r.imageUrl
           ? { id: r.imageId, url: r.imageUrl }

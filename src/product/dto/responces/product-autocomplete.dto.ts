@@ -9,6 +9,7 @@ export class ProductAutocompleteDto {
   @Expose() id: string;
   @Expose() name: string;
   @Expose() price: number;
+  @Expose() slug: string;
 
   @Expose()
   @Type(() => ProductImageDto)

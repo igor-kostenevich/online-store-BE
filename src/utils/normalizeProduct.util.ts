@@ -6,6 +6,7 @@ export function normalizeRawAutocomplete(p: RawAutocompleteProduct): ProductAuto
     id: p.id,
     name: p.name,
     price: +p.price,
+    slug: p.slug,
     image: p.imageId && p.imageUrl
       ? { id: p.imageId, url: p.imageUrl }
       : undefined,

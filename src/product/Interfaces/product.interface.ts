@@ -7,6 +7,7 @@ export interface RawAutocompleteProduct {
   id: string;
   name: string;
   price: Prisma.Decimal;
+  slug: string;
   imageId?: string | null;
   imageUrl?: string | null;
 }
