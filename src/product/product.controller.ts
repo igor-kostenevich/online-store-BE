@@ -51,7 +51,6 @@ export class ProductController {
     return this.productService.getHomepageProductBlocks();
   }
 
-
   @Get()
   @HttpCode(200)
   @ApiOperation({ summary: 'Get all products', description: 'Retrieve a list of all available products' })
@@ -79,7 +78,6 @@ export class ProductController {
   getAll() {
     return this.productService.findAll();
   }
-  
 
   @Get('discounts')
   @HttpCode(200)

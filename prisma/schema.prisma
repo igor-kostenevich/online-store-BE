@@ -32,6 +32,7 @@ model User {
   role      Role     @default(USER)
   orders    Order[]  @relation("user_orders")
   reviews   Review[] @relation("user_reviews")
+  wishLists WishList[] @relation("user_wishLists")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -65,6 +66,7 @@ model Product {
   isNew       Boolean        @default(false)
   orderItems  OrderItem[]    @relation("product_orderItems")
   reviews    Review[]        @relation("product_reviews")
+  wishLists WishList[] @relation("product_wishLists")
 
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -128,3 +130,17 @@ model ContactRequest {
   message   String
   createdAt DateTime @default(now())
 }
+
+model WishList {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("user_wishLists", fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product  @relation("product_wishLists", fields: [productId], references: [id], onDelete: Cascade) // 👈 добавь это
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+

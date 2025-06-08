@@ -11,6 +11,7 @@ import { PromoModule } from './promo/promo.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { TelegramService } from './telegram/telegram.service';
 import { MailModule } from './mail/mail.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   controllers: [AppController],
@@ -27,6 +28,7 @@ import { MailModule } from './mail/mail.module';
     PromoModule,
     TelegramModule,
     MailModule,
+    WishlistModule,
   ],
 })
 export class AppModule {}
