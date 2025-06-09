@@ -39,7 +39,7 @@ export class ProductService {
     const [newArrivals, bestSelling, discounts, banner, allProducts] = await Promise.all([
       this.getTopNewArrivals(),
       this.getBestSellingProducts(),
-      this.getFlashSalesProducts().then(r => r.items.slice(0, 12)),
+      this.getFlashSalesProducts().then(r => ({...r, items: r.items.slice(0, 12)})),
       this.promoService.getPromoBanner(),
       this.getMixedCategoryProducts().then(r => r.slice(0, 24)),
     ]);
