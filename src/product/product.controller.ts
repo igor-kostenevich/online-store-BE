@@ -140,6 +140,33 @@ export class ProductController {
     return this.productService.searchProducts(query);
   }
 
+  @(Get('category-products/:categorySlug'))
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Get products by category slug',
+    description: 'Retrieve all products belonging to a specific category using its slug',
+  })
+  @ApiOkResponse({
+    description: 'List of products in the specified category',
+    type: [ProductResponse],
+  })
+  @ApiNotFoundResponse({ description: 'Category not found or no products available' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number (optional, default: 1)',
+    schema: { type: 'integer', default: 1 },
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page (optional, default: 20)',
+    schema: { type: 'integer', default: 20 },
+  })
+  async getProductsByCategory(@Param('categorySlug') categorySlug: string) {
+    return this.productService.getProductsByCategory(categorySlug);
+  }
+
   @Get(':slug')
   @HttpCode(200)
   @ApiOperation({ summary: 'Get a product by its slug', description: 'Retrieve a single product using its unique slug' })

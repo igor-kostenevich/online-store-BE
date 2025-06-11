@@ -8,10 +8,11 @@ import { createCacheWithExpiry } from '../utils/cacheTimer.util';
 import { ProductAutocompleteDto } from './dto/responces/product-autocomplete.dto';
 import { PromoService } from 'src/promo/promo.service';
 import { shuffle } from 'lodash'
+import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly prismaService: PrismaService, private readonly promoService: PromoService) {}
+  constructor(private readonly prismaService: PrismaService, private readonly promoService: PromoService, private readonly categoryService: CategoryService) {}
 
   private readonly flashSalesCache = createCacheWithExpiry<ProductResponse[]>((Math.floor(Math.random() * 4) + 2) * 24 * 60 * 60 * 1000)
 
@@ -51,6 +52,26 @@ export class ProductService {
       banner,
       allProducts,
     };
+  }
+
+  async getProductsByCategory(categorySlug: string): Promise<ProductResponse[]> {
+    if (!categorySlug) {
+      throw new NotFoundException('Category slug is required');
+    }
+    
+    const products = await this.prismaService.product.findMany({
+      where: {
+        category: {
+          slug: categorySlug,
+        },
+      }
+    })
+
+    if (products.length === 0) {
+      throw new NotFoundException(`No products found for category with slug="${categorySlug}"`);
+    }
+
+    return plainToInstance(ProductResponse, products.map(p => this.normalize(p)));
   }
 
   async getMixedCategoryProducts(): Promise<ProductResponse[]> {
