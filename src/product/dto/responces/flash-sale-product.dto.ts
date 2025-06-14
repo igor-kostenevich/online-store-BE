@@ -9,7 +9,7 @@ export class FlashSaleProductResponse {
     description: 'List of product with sale'
   })
   @Type(() => ProductResponse)
-  items: ProductResponse[];
+  data: ProductResponse[];
 
   @ApiProperty({ description: 'Expiration date of the sale' })
   expiresAt: string;

@@ -40,7 +40,7 @@ export class ProductService {
     const [newArrivals, bestSelling, discounts, banner, allProducts] = await Promise.all([
       this.getTopNewArrivals(),
       this.getBestSellingProducts(),
-      this.getFlashSalesProducts().then(r => ({...r, items: r.items.slice(0, 12)})),
+      this.getFlashSalesProducts().then(r => ({...r, items: r.data.slice(0, 12)})),
       this.promoService.getPromoBanner(),
       this.getMixedCategoryProducts().then(r => r.slice(0, 24)),
     ]);
@@ -64,6 +64,11 @@ export class ProductService {
         category: {
           slug: categorySlug,
         },
+      },
+      include: {
+        images: true,
+        category: true,
+        reviews: true,
       }
     })
 
@@ -147,7 +152,7 @@ export class ProductService {
 
     return {
       expiresAt: this.flashSalesCache.getExpiry()!,
-      items: this.flashSalesCache.get()!,
+      data: this.flashSalesCache.get()!,
     };
   }
 
