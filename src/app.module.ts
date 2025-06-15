@@ -12,6 +12,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { TelegramService } from './telegram/telegram.service';
 import { MailModule } from './mail/mail.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { LiqpayModule } from './liqpay/liqpay.module';
 
 @Module({
   controllers: [AppController],
@@ -29,6 +30,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     TelegramModule,
     MailModule,
     WishlistModule,
+    LiqpayModule,
   ],
 })
 export class AppModule {}

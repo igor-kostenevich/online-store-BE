@@ -31,4 +31,16 @@ export class OrderResponse {
     description: 'List of items in the order',
   })
   items: OrderItemResponse[];
+
+  @ApiProperty({
+    description: 'LiqPay checkout data',
+    type: 'object',
+    additionalProperties: {
+      type: 'string',
+    },
+  })
+  liqpay: {
+    data: string;
+    signature: string;
+  }
 }

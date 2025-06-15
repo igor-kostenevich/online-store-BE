@@ -6,10 +6,14 @@ import { OrderItemResponse } from './dto/responses/orderItemResponse.dto';
 import { OrderResponse } from './dto/responses/orderResponse.dto';
 import { CreateOrderDto } from './dto/createOrder.dto';
 import { TelegramService } from 'src/telegram/telegram.service';
+import { LiqpayService } from 'src/liqpay/liqpay.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prismaService: PrismaService, private readonly telegramService: TelegramService) {}
+  private readonly resultURL = process.env.LIQPAY_RESULT_URL
+  private readonly serverURL = process.env.LIQPAY_SERVER_URL
+
+  constructor(private readonly prismaService: PrismaService, private readonly telegramService: TelegramService, private readonly liqpayService: LiqpayService) {}
 
   /**
    * Create new order.
@@ -95,6 +99,14 @@ export class OrderService {
 
     await this.telegramService.sendMessage(message);
 
+    const liqpay = this.liqpayService.generateCheckoutData({
+      amount: total,
+      description: `Order #${order.id}`,
+      order_id: order.id,
+      result_url: this.resultURL || '',
+      server_url: this.serverURL || '',
+    })
+
     const response: OrderResponse = {
       id: order.id,
       total: order.total.toNumber(),
@@ -107,6 +119,7 @@ export class OrderService {
           price: i.price.toNumber(),
         }),
       ),
+      liqpay
     };
 
     return plainToInstance(OrderResponse, response);
@@ -167,6 +180,13 @@ export class OrderService {
           price: i.price.toNumber(),
         }),
       ),
+      liqpay: this.liqpayService.generateCheckoutData({
+        amount: order.total.toNumber(),
+        description: `Order #${order.id}`,
+        order_id: order.id,
+        result_url: this.resultURL || '',
+        server_url: this.serverURL || '',
+      })
     };
 
     return plainToInstance(OrderResponse, response);
