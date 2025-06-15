@@ -1,3 +1,4 @@
+import { OrderStatus } from '@prisma/client';
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import * as crypto from 'crypto'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -52,19 +53,19 @@ export class LiqpayService {
     const { order_id, status } = decoded
     console.log('LIQPAY CALLBACK >>>', decoded, order_id, status)
   
-    let newStatus: string
+    let newStatus: OrderStatus
   
     switch (status) {
       case 'success':
       case 'sandbox':
-        newStatus = 'paid'
+        newStatus = OrderStatus.paid
         break
       case 'failure':
       case 'error':
-        newStatus = 'failed'
+        newStatus = OrderStatus.failed
         break
       default:
-        newStatus = 'pending'
+        newStatus = OrderStatus.pending
     }
   
     await this.prismaService.order.update({
