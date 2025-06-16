@@ -51,7 +51,6 @@ export class LiqpayService {
   
     const decoded = JSON.parse(Buffer.from(data, 'base64').toString('utf8'))
     const { order_id, status } = decoded
-    console.log('LIQPAY CALLBACK >>>', decoded, order_id, status)
   
     let newStatus: OrderStatus
   

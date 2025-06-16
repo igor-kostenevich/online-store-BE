@@ -8,6 +8,18 @@ export class OrderItemResponse {
   productId: string;
 
   @ApiProperty({
+    description: 'Name of the product at the time of order',
+    example: 'iPhone 15 Pro',
+  })
+  name?: string;
+
+  @ApiProperty({
+    description: 'Preview image of the product',
+    example: 'https://example.com/images/iphone15pro.jpg',
+  })
+  image?: string;
+
+  @ApiProperty({
     description: 'Quantity ordered',
     example: 2,
   })

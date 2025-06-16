@@ -131,7 +131,17 @@ export class OrderService {
   async getUserOrders(userId: string): Promise<OrderResponse[]> {
     const orders = await this.prismaService.order.findMany({
       where: { userId },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -146,6 +156,8 @@ export class OrderService {
             productId: i.productId,
             quantity: i.quantity,
             price: i.price.toNumber(),
+            name: i.product.name,
+            image: i.product.images?.[0]?.url || '',
           }),
         ),
       }),
@@ -161,7 +173,17 @@ export class OrderService {
   ): Promise<OrderResponse> {
     const order = await this.prismaService.order.findUnique({
       where: { id: orderId },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!order || order.userId !== userId) {
@@ -178,15 +200,10 @@ export class OrderService {
           productId: i.productId,
           quantity: i.quantity,
           price: i.price.toNumber(),
+          name: i.product.name,
+          image: i.product.images?.[0]?.url || '',
         }),
       ),
-      liqpay: this.liqpayService.generateCheckoutData({
-        amount: order.total.toNumber(),
-        description: `Order #${order.id}`,
-        order_id: order.id,
-        result_url: this.resultURL || '',
-        server_url: this.serverURL || '',
-      })
     };
 
     return plainToInstance(OrderResponse, response);

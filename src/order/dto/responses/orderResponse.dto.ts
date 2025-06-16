@@ -39,7 +39,7 @@ export class OrderResponse {
       type: 'string',
     },
   })
-  liqpay: {
+  liqpay?: {
     data: string;
     signature: string;
   }
