@@ -4,17 +4,26 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { ProductResponse } from './dto/responces/product.dto';
 import { FlashSaleProductResponse } from './dto/responces/flash-sale-product.dto';
-import { createCacheWithExpiry } from '../utils/cacheTimer.util';
+import { createAdvancedCache } from '../utils/cacheTimer.util';
 import { ProductAutocompleteDto } from './dto/responces/product-autocomplete.dto';
 import { PromoService } from 'src/promo/promo.service';
 import { shuffle } from 'lodash'
 import { CategoryService } from 'src/category/category.service';
 
+type HomepageBlocks = {
+  newArrivals: ProductResponse[],
+  bestSelling: ProductResponse[],
+  discounts: { expiresAt: string, items: ProductResponse[] },
+  banner: any,
+  allProducts: ProductResponse[],
+};
+
 @Injectable()
 export class ProductService {
   constructor(private readonly prismaService: PrismaService, private readonly promoService: PromoService, private readonly categoryService: CategoryService) {}
 
-  private readonly flashSalesCache = createCacheWithExpiry<ProductResponse[]>((Math.floor(Math.random() * 4) + 2) * 24 * 60 * 60 * 1000)
+  private readonly flashSalesCache = createAdvancedCache<ProductResponse[]>((Math.floor(Math.random() * 4) + 2) * 24 * 60 * 60 * 1000)
+  private readonly homepageCache = createAdvancedCache<HomepageBlocks>(30 * 60 * 1000);
 
   private normalize(p: RawProduct & { reviews?: { rating: number }[] }) {
     const ratings = p.reviews?.map(r => r.rating) ?? []
@@ -37,21 +46,27 @@ export class ProductService {
   }
 
   async getHomepageProductBlocks() {
+    const cached = this.homepageCache.get();
+    if (cached) return cached;
+  
     const [newArrivals, bestSelling, discounts, banner, allProducts] = await Promise.all([
       this.getTopNewArrivals(),
       this.getBestSellingProducts(),
-      this.getFlashSalesProducts().then(r => ({...r, items: r.data.slice(0, 12)})),
+      this.getFlashSalesProducts().then(r => ({ ...r, items: r.data.slice(0, 12) })),
       this.promoService.getPromoBanner(),
       this.getMixedCategoryProducts().then(r => r.slice(0, 24)),
     ]);
   
-    return {
+    const result = {
       newArrivals,
       bestSelling: bestSelling.slice(0, 4),
       discounts,
       banner,
       allProducts,
     };
+  
+    this.homepageCache.set(result);
+    return result;
   }
 
   async getProductsByCategory(categorySlug: string): Promise<ProductResponse[]> {
@@ -131,10 +146,8 @@ export class ProductService {
   }
 
   async getFlashSalesProducts(): Promise<FlashSaleProductResponse> {
-    if (this.flashSalesCache.isExpired()) {
-      const days = Math.floor(Math.random() * 5) + 3;
-      const durationMs = days * 24 * 60 * 60 * 1000;
-
+    const expiry = this.flashSalesCache.getExpiry();
+    if (!expiry || new Date(expiry) <= new Date()) {
       const raws = await this.prismaService.product.findMany({
         where: { discount: { gt: 0 } },
         orderBy: { discount: 'desc' },
@@ -147,7 +160,6 @@ export class ProductService {
       );
 
       this.flashSalesCache.set(normalizedProducts);
-      (this.flashSalesCache as any).expiresAt = new Date(Date.now() + durationMs);
     }
 
     return {

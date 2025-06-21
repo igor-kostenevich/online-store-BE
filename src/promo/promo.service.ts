@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { plainToInstance } from 'class-transformer';
 import { ProductResponse } from '../product/dto/responces/product.dto';
-import { createCacheWithExpiry } from '../utils/cacheTimer.util';
+import { createAdvancedCache } from '../utils/cacheTimer.util';
 
 @Injectable()
 export class PromoService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private readonly promoCache = createCacheWithExpiry<ProductResponse>(
+  private readonly promoCache = createAdvancedCache<ProductResponse>(
     (Math.floor(Math.random() * 4) + 2) * 24 * 60 * 60 * 1000
   );
 
@@ -29,10 +29,8 @@ export class PromoService {
   }
 
   async getPromoBanner(): Promise<{ expiresAt: string; product: ProductResponse }> {
-    if (this.promoCache.isExpired()) {
-      const days = Math.floor(Math.random() * 5) + 3;
-      const durationMs = days * 24 * 60 * 60 * 1000;
-  
+    const expiry = this.promoCache.getExpiry();
+    if (!expiry || new Date(expiry) <= new Date()) {  
       const totalCount = await this.prismaService.product.count();
   
       if (totalCount === 0) {
@@ -53,7 +51,6 @@ export class PromoService {
       const normalized = plainToInstance(ProductResponse, this.normalize(randomProduct));
       
       this.promoCache.set(normalized);
-      (this.promoCache as any).expiresAt = new Date(Date.now() + durationMs);
     }
   
     return {
